@@ -32,6 +32,23 @@ export const api = {
   getProjects: () => request<any[]>('/projects'),
   getDashboard: (projectId: number) => request<any>(`/projects/${projectId}/dashboard`),
   getRisks: (projectId: number) => request<any[]>(`/projects/${projectId}/risks`),
+  createRisk: (projectId: number, payload: any) =>
+    request<any>(`/projects/${projectId}/risks`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+  updateRisk: (projectId: number, riskId: number, payload: any) =>
+    request<any>(`/projects/${projectId}/risks/${riskId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    }),
+  getRiskChanges: (projectId: number, riskId: number) =>
+    request<any[]>(`/projects/${projectId}/risks/${riskId}/changes`),
+  createRiskChange: (projectId: number, riskId: number, payload: any) =>
+    request<any>(`/projects/${projectId}/risks/${riskId}/changes`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
   getIssues: (projectId: number) => request<any[]>(`/projects/${projectId}/issues`),
   getDecisions: (projectId: number) => request<any[]>(`/projects/${projectId}/decisions`),
   getChanges: (projectId: number) => request<any[]>(`/projects/${projectId}/changes`),

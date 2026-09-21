@@ -104,6 +104,25 @@ class RiskOut(RiskBase):
     model_config = ConfigDict(from_attributes=True)
 
 
+class RiskChangeBase(BaseModel):
+    field_name: str
+    old_value: Optional[str] = None
+    new_value: Optional[str] = None
+    comment: Optional[str] = None
+
+
+class RiskChangeCreate(RiskChangeBase):
+    pass
+
+
+class RiskChangeOut(RiskChangeBase):
+    id: int
+    risk_id: int
+    changed_by: Optional[int] = None
+    created_at: datetime
+    model_config = ConfigDict(from_attributes=True)
+
+
 class IssueBase(BaseModel):
     title: str
     description: Optional[str] = None

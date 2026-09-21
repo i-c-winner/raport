@@ -126,6 +126,22 @@ class Risk(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), onupdate=func.now(), nullable=False)
 
     project: Mapped[Project] = relationship(back_populates="risks")
+    changes: Mapped[list["RiskChange"]] = relationship(back_populates="risk")
+
+
+class RiskChange(Base):
+    __tablename__ = "risk_changes"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    risk_id: Mapped[int] = mapped_column(ForeignKey("risks.id"), nullable=False)
+    field_name: Mapped[str] = mapped_column(String(100), nullable=False)
+    old_value: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    new_value: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    comment: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    changed_by: Mapped[Optional[int]] = mapped_column(ForeignKey("users.id"), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), nullable=False)
+
+    risk: Mapped[Risk] = relationship(back_populates="changes")
 
 
 class Issue(Base):
