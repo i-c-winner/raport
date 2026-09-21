@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user, get_db, require_project_access
 from app.db.models import Milestone, User
-from app.schemas import MilestoneCreate, MilestoneOut
+from app.schemas import MilestoneCreate, MilestoneOut, MilestoneUpdate
 
 router = APIRouter(prefix="/projects/{project_id}/milestones", tags=["milestones"])
 
@@ -27,9 +27,11 @@ def create_milestone(
 ) -> Milestone:
     require_project_access(project_id, user, db)
 
+    code = payload.code or f"MS-{db.query(Milestone).filter(Milestone.project_id == project_id).count() + 1:03d}"
+
     milestone = Milestone(
         project_id=project_id,
-        code=payload.code,
+        code=code,
         title=payload.title,
         description=payload.description,
         baseline_date=payload.baseline_date,
@@ -56,4 +58,26 @@ def get_milestone(
     milestone = db.query(Milestone).filter(Milestone.id == milestone_id, Milestone.project_id == project_id).first()
     if milestone is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Milestone not found")
+    return milestone
+
+
+@router.patch("/{milestone_id}", response_model=MilestoneOut)
+def update_milestone(
+    project_id: int,
+    milestone_id: int,
+    payload: MilestoneUpdate,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+) -> Milestone:
+    require_project_access(project_id, user, db)
+    milestone = db.query(Milestone).filter(Milestone.id == milestone_id, Milestone.project_id == project_id).first()
+    if milestone is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Milestone not found")
+
+    for field, value in payload.model_dump(exclude_unset=True).items():
+        if value is not None:
+            setattr(milestone, field, value)
+
+    db.commit()
+    db.refresh(milestone)
     return milestone

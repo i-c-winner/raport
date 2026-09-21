@@ -36,6 +36,16 @@ export const api = {
   getDecisions: (projectId: number) => request<any[]>(`/projects/${projectId}/decisions`),
   getChanges: (projectId: number) => request<any[]>(`/projects/${projectId}/changes`),
   getMilestones: (projectId: number) => request<any[]>(`/projects/${projectId}/milestones`),
+  createMilestone: (projectId: number, payload: any) =>
+    request<any>(`/projects/${projectId}/milestones`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+  updateMilestone: (projectId: number, milestoneId: number, payload: any) =>
+    request<any>(`/projects/${projectId}/milestones/${milestoneId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    }),
   getWeeklyReports: (projectId: number) => request<any[]>(`/projects/${projectId}/weekly-reports`),
   login: (email: string, password: string) =>
     request<{ access_token: string; token_type: string }>('/auth/login', {

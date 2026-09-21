@@ -223,7 +223,7 @@ class EntityLinkOut(BaseModel):
 
 
 class MilestoneBase(BaseModel):
-    code: str
+    code: Optional[str] = None
     title: str
     description: Optional[str] = None
     baseline_date: Optional[date] = None
@@ -236,6 +236,18 @@ class MilestoneBase(BaseModel):
 
 class MilestoneCreate(MilestoneBase):
     pass
+
+
+class MilestoneUpdate(MilestoneBase):
+    code: Optional[str] = None
+    title: Optional[str] = None
+    description: Optional[str] = None
+    baseline_date: Optional[date] = None
+    current_date: Optional[date] = None
+    forecast_date: Optional[date] = None
+    actual_date: Optional[date] = None
+    status: Optional[str] = None
+    owner_id: Optional[int] = None
 
 
 class MilestoneOut(MilestoneBase):
