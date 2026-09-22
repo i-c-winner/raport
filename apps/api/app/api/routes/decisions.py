@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user, get_db, require_project_access
 from app.db.models import Decision, User
-from app.schemas import DecisionCreate, DecisionOut
+from app.schemas import DecisionCreate, DecisionOut, DecisionUpdate
 
 router = APIRouter(prefix="/projects/{project_id}/decisions", tags=["decisions"])
 
@@ -59,4 +59,29 @@ def get_decision(
     decision = db.query(Decision).filter(Decision.id == decision_id, Decision.project_id == project_id).first()
     if decision is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Decision not found")
+    return decision
+
+
+@router.patch("/{decision_id}", response_model=DecisionOut)
+def update_decision(
+    project_id: int,
+    decision_id: int,
+    payload: DecisionUpdate,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+) -> Decision:
+    require_project_access(project_id, user, db)
+    decision = db.query(Decision).filter(Decision.id == decision_id, Decision.project_id == project_id).first()
+    if decision is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Decision not found")
+
+    for field, value in payload.model_dump(exclude_unset=True).items():
+        if value is None:
+            continue
+        current_value = getattr(decision, field)
+        if current_value != value:
+            setattr(decision, field, value)
+
+    db.commit()
+    db.refresh(decision)
     return decision

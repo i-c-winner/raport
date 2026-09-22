@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import inspect, text
 
+from app.api.routes.audit_logs import router as audit_logs_router
 from app.api.routes.auth import router as auth_router
 from app.api.routes.changes import router as changes_router
 from app.api.routes.dashboard import router as dashboard_router
@@ -33,12 +35,19 @@ app.add_middleware(
 @app.on_event("startup")
 def startup() -> None:
     Base.metadata.create_all(bind=engine)
+
+    with engine.begin() as connection:
+        columns = [column["name"] for column in inspect(connection).get_columns("audit_logs")]
+        if "entity_name" not in columns:
+            connection.execute(text("ALTER TABLE audit_logs ADD COLUMN entity_name VARCHAR(255)"))
+
     seed_demo_data()
 
 
 app.include_router(auth_router)
 app.include_router(organizations_router)
 app.include_router(projects_router)
+app.include_router(audit_logs_router)
 app.include_router(risks_router)
 app.include_router(issues_router)
 app.include_router(decisions_router)

@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user, get_db, require_project_access
 from app.db.models import User, WeeklyReport, WeeklyReportSnapshot
-from app.schemas import WeeklyReportCreate, WeeklyReportOut
+from app.schemas import WeeklyReportCreate, WeeklyReportOut, WeeklyReportUpdate
 
 router = APIRouter(prefix="/projects/{project_id}/weekly-reports", tags=["weekly-reports"])
 
@@ -43,6 +43,44 @@ def create_weekly_report(
     db.commit()
     db.refresh(weekly_report)
     return weekly_report
+
+
+@router.get("/{report_id}", response_model=WeeklyReportOut)
+def get_weekly_report(
+    project_id: int,
+    report_id: int,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+) -> WeeklyReport:
+    require_project_access(project_id, user, db)
+    report = db.query(WeeklyReport).filter(WeeklyReport.id == report_id, WeeklyReport.project_id == project_id).first()
+    if report is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Weekly report not found")
+    return report
+
+
+@router.patch("/{report_id}", response_model=WeeklyReportOut)
+def update_weekly_report(
+    project_id: int,
+    report_id: int,
+    payload: WeeklyReportUpdate,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+) -> WeeklyReport:
+    require_project_access(project_id, user, db)
+    report = db.query(WeeklyReport).filter(WeeklyReport.id == report_id, WeeklyReport.project_id == project_id).first()
+    if report is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Weekly report not found")
+
+    for field, value in payload.model_dump(exclude_unset=True).items():
+        if value is None:
+            continue
+        if getattr(report, field) != value:
+            setattr(report, field, value)
+
+    db.commit()
+    db.refresh(report)
+    return report
 
 
 @router.post("/{report_id}/publish", response_model=WeeklyReportOut)

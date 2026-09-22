@@ -123,6 +123,21 @@ class RiskChangeOut(RiskChangeBase):
     model_config = ConfigDict(from_attributes=True)
 
 
+class AuditLogOut(BaseModel):
+    id: int
+    project_id: int
+    entity_type: str
+    entity_id: int
+    entity_name: Optional[str] = None
+    action: str
+    field_name: Optional[str] = None
+    old_value: Optional[str] = None
+    new_value: Optional[str] = None
+    user_id: Optional[int] = None
+    created_at: datetime
+    model_config = ConfigDict(from_attributes=True)
+
+
 class IssueBase(BaseModel):
     title: str
     description: Optional[str] = None
@@ -143,6 +158,22 @@ class IssueCreate(IssueBase):
     pass
 
 
+class IssueUpdate(IssueBase):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    category: Optional[str] = None
+    priority: Optional[str] = None
+    severity: Optional[str] = None
+    schedule_impact_days: Optional[int] = None
+    cost_impact: Optional[Decimal] = None
+    owner_id: Optional[int] = None
+    action_required: Optional[str] = None
+    status: Optional[str] = None
+    identified_at: Optional[date] = None
+    due_date: Optional[date] = None
+    resolved_at: Optional[date] = None
+
+
 class IssueOut(IssueBase):
     id: int
     project_id: int
@@ -150,6 +181,25 @@ class IssueOut(IssueBase):
     created_by: Optional[int] = None
     created_at: datetime
     updated_at: datetime
+    model_config = ConfigDict(from_attributes=True)
+
+
+class IssueChangeBase(BaseModel):
+    field_name: str
+    old_value: Optional[str] = None
+    new_value: Optional[str] = None
+    comment: Optional[str] = None
+
+
+class IssueChangeCreate(IssueChangeBase):
+    pass
+
+
+class IssueChangeOut(IssueChangeBase):
+    id: int
+    issue_id: int
+    changed_by: Optional[int] = None
+    created_at: datetime
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -169,6 +219,20 @@ class DecisionBase(BaseModel):
 
 class DecisionCreate(DecisionBase):
     pass
+
+
+class DecisionUpdate(DecisionBase):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    requested_by: Optional[int] = None
+    owner_id: Optional[int] = None
+    required_date: Optional[date] = None
+    decision_date: Optional[date] = None
+    status: Optional[str] = None
+    decision_text: Optional[str] = None
+    comments: Optional[str] = None
+    schedule_impact_days: Optional[int] = None
+    cost_impact: Optional[Decimal] = None
 
 
 class DecisionOut(DecisionBase):
@@ -196,6 +260,20 @@ class ChangeBase(BaseModel):
 
 class ChangeCreate(ChangeBase):
     pass
+
+
+class ChangeUpdate(ChangeBase):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    reason: Optional[str] = None
+    requested_by: Optional[int] = None
+    owner_id: Optional[int] = None
+    status: Optional[str] = None
+    schedule_impact_days: Optional[int] = None
+    cost_impact: Optional[Decimal] = None
+    requested_at: Optional[date] = None
+    required_date: Optional[date] = None
+    approved_at: Optional[date] = None
 
 
 class ChangeOut(ChangeBase):
@@ -283,6 +361,15 @@ class WeeklyReportCreate(BaseModel):
     key_achievements: Optional[str] = None
     next_week_activities: Optional[str] = None
     management_comments: Optional[str] = None
+
+
+class WeeklyReportUpdate(BaseModel):
+    reporting_date: Optional[date] = None
+    executive_summary: Optional[str] = None
+    key_achievements: Optional[str] = None
+    next_week_activities: Optional[str] = None
+    management_comments: Optional[str] = None
+    status: Optional[str] = None
 
 
 class WeeklyReportOut(WeeklyReportCreate):

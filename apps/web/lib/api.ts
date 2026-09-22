@@ -49,9 +49,47 @@ export const api = {
       method: 'POST',
       body: JSON.stringify(payload),
     }),
+  getAuditLogs: (projectId: number) => request<any[]>(`/projects/${projectId}/audit-logs`),
   getIssues: (projectId: number) => request<any[]>(`/projects/${projectId}/issues`),
+  createIssue: (projectId: number, payload: any) =>
+    request<any>(`/projects/${projectId}/issues`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+  updateIssue: (projectId: number, issueId: number, payload: any) =>
+    request<any>(`/projects/${projectId}/issues/${issueId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    }),
+  getIssueChanges: (projectId: number, issueId: number) =>
+    request<any[]>(`/projects/${projectId}/issues/${issueId}/changes`),
+  createIssueChange: (projectId: number, issueId: number, payload: any) =>
+    request<any>(`/projects/${projectId}/issues/${issueId}/changes`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
   getDecisions: (projectId: number) => request<any[]>(`/projects/${projectId}/decisions`),
+  createDecision: (projectId: number, payload: any) =>
+    request<any>(`/projects/${projectId}/decisions`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+  updateDecision: (projectId: number, decisionId: number, payload: any) =>
+    request<any>(`/projects/${projectId}/decisions/${decisionId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    }),
   getChanges: (projectId: number) => request<any[]>(`/projects/${projectId}/changes`),
+  createChange: (projectId: number, payload: any) =>
+    request<any>(`/projects/${projectId}/changes`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+  updateChange: (projectId: number, changeId: number, payload: any) =>
+    request<any>(`/projects/${projectId}/changes/${changeId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    }),
   getMilestones: (projectId: number) => request<any[]>(`/projects/${projectId}/milestones`),
   createMilestone: (projectId: number, payload: any) =>
     request<any>(`/projects/${projectId}/milestones`, {
@@ -64,6 +102,16 @@ export const api = {
       body: JSON.stringify(payload),
     }),
   getWeeklyReports: (projectId: number) => request<any[]>(`/projects/${projectId}/weekly-reports`),
+  createWeeklyReport: (projectId: number, payload: any) =>
+    request<any>(`/projects/${projectId}/weekly-reports`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+  updateWeeklyReport: (projectId: number, reportId: number, payload: any) =>
+    request<any>(`/projects/${projectId}/weekly-reports/${reportId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    }),
   login: (email: string, password: string) =>
     request<{ access_token: string; token_type: string }>('/auth/login', {
       method: 'POST',

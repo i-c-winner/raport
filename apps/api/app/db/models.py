@@ -168,6 +168,22 @@ class Issue(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), onupdate=func.now(), nullable=False)
 
     project: Mapped[Project] = relationship(back_populates="issues")
+    changes: Mapped[list["IssueChange"]] = relationship(back_populates="issue")
+
+
+class IssueChange(Base):
+    __tablename__ = "issue_changes"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    issue_id: Mapped[int] = mapped_column(ForeignKey("issues.id"), nullable=False)
+    field_name: Mapped[str] = mapped_column(String(100), nullable=False)
+    old_value: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    new_value: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    comment: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    changed_by: Mapped[Optional[int]] = mapped_column(ForeignKey("users.id"), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), nullable=False)
+
+    issue: Mapped[Issue] = relationship(back_populates="changes")
 
 
 class Decision(Base):
@@ -267,6 +283,7 @@ class AuditLog(Base):
     project_id: Mapped[int] = mapped_column(ForeignKey("projects.id"), nullable=False)
     entity_type: Mapped[str] = mapped_column(String(50), nullable=False)
     entity_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    entity_name: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     action: Mapped[str] = mapped_column(String(50), nullable=False)
     field_name: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     old_value: Mapped[Optional[str]] = mapped_column(Text, nullable=True)

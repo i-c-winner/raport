@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user, get_db, require_project_access
-from app.db.models import Issue, Risk, RiskChange, User
+from app.db.models import AuditLog, Issue, Risk, RiskChange, User
 from app.schemas import RiskChangeCreate, RiskChangeOut, RiskCreate, RiskOut, RiskUpdate
 
 router = APIRouter(prefix="/projects/{project_id}/risks", tags=["risks"])
@@ -149,6 +149,19 @@ def create_risk_change(
         changed_by=user.id,
     )
     db.add(change)
+    db.add(
+        AuditLog(
+            project_id=project_id,
+            entity_type="risk",
+            entity_id=risk.id,
+            entity_name=risk.title,
+            action="change",
+            field_name=payload.field_name,
+            old_value=payload.old_value,
+            new_value=payload.new_value,
+            user_id=user.id,
+        )
+    )
     db.commit()
     db.refresh(change)
     return change
@@ -186,6 +199,19 @@ def update_risk(
                     new_value=str(new_value) if new_value is not None else None,
                     comment=f"Изменение поля '{field_name}'",
                     changed_by=user.id,
+                )
+            )
+            db.add(
+                AuditLog(
+                    project_id=project_id,
+                    entity_type="risk",
+                    entity_id=risk.id,
+                    entity_name=risk.title,
+                    action="update",
+                    field_name=field_name,
+                    old_value=str(old_value) if old_value is not None else None,
+                    new_value=str(new_value) if new_value is not None else None,
+                    user_id=user.id,
                 )
             )
 
