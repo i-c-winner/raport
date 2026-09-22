@@ -24,6 +24,7 @@ export default function WeeklyReportsPage() {
   const [rows, setRows] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedReport, setSelectedReport] = useState<any | null>(null);
@@ -103,6 +104,28 @@ export default function WeeklyReportsPage() {
     }
   };
 
+  const createWeeklyReportDocument = async () => {
+    try {
+      setGenerating(true);
+      setError(null);
+      const meta = await api.generateWeeklyReport(1);
+      const blob = await api.downloadWeeklyReport(1, meta.file_name);
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = meta.file_name;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      URL.revokeObjectURL(url);
+      await loadReports();
+    } catch (err: any) {
+      setError(err.message || 'Не удалось создать недельный отчёт');
+    } finally {
+      setGenerating(false);
+    }
+  };
+
   if (loading) return <main style={{ padding: 32 }}>Загрузка еженедельных отчётов...</main>;
   if (error) return <main style={{ padding: 32, color: '#b42318' }}>Ошибка: {error}</main>;
 
@@ -118,11 +141,16 @@ export default function WeeklyReportsPage() {
           ))}
         </nav>
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, gap: 12, flexWrap: 'wrap' }}>
           <div style={{ fontSize: 14, color: '#475467' }}>Всего отчётов: <strong>{rows.length}</strong></div>
-          <button type="button" onClick={() => openModal()} style={{ border: 'none', background: '#111827', color: '#fff', borderRadius: 10, padding: '10px 16px', fontWeight: 700, cursor: 'pointer' }}>
-            + Добавить отчёт
-          </button>
+          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+            <button type="button" onClick={createWeeklyReportDocument} disabled={generating} style={{ border: 'none', background: '#0f766e', color: '#fff', borderRadius: 10, padding: '10px 16px', fontWeight: 700, cursor: generating ? 'not-allowed' : 'pointer', opacity: generating ? 0.7 : 1 }}>
+              {generating ? 'Создание...' : 'Создать недельный отчёт'}
+            </button>
+            <button type="button" onClick={() => openModal()} style={{ border: 'none', background: '#111827', color: '#fff', borderRadius: 10, padding: '10px 16px', fontWeight: 700, cursor: 'pointer' }}>
+              + Добавить отчёт
+            </button>
+          </div>
         </div>
 
         <table style={{ width: '100%', background: '#fff', borderRadius: 16, borderCollapse: 'collapse', overflow: 'hidden', boxShadow: '0 1px 2px rgba(16,24,40,0.04)' }}>

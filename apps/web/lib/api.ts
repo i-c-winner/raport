@@ -112,6 +112,23 @@ export const api = {
       method: 'PATCH',
       body: JSON.stringify(payload),
     }),
+  generateWeeklyReport: (projectId: number) =>
+    request<any>(`/projects/${projectId}/weekly-reports/generate`, {
+      method: 'POST',
+    }),
+  downloadWeeklyReport: async (projectId: number, fileName: string) => {
+    const token = getAuthToken();
+    const res = await fetch(`${API_BASE_URL}/projects/${projectId}/weekly-reports/generated/${encodeURIComponent(fileName)}`, {
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+    });
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(text || 'Failed to download weekly report');
+    }
+    return res.blob();
+  },
   login: (email: string, password: string) =>
     request<{ access_token: string; token_type: string }>('/auth/login', {
       method: 'POST',
