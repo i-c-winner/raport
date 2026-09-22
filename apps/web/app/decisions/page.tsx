@@ -12,9 +12,17 @@ const STATUS_OPTIONS = [
   { value: 'closed', label: 'Закрыто' },
 ];
 
+const RESPONSIBLE_PERSON_OPTIONS = [
+  { value: 'Руководитель строительного направления', label: 'Руководитель строительного направления' },
+  { value: 'Руководитель проектного офиса', label: 'Руководитель проектного офиса' },
+  { value: 'Топ менеджмент', label: 'Топ менеджмент' },
+  { value: 'custom', label: 'Собственная позиция' },
+];
+
 const EMPTY_DECISION = {
   title: '',
   description: '',
+  responsible_person: '',
   decision_text: '',
   comments: '',
   status: 'pending',
@@ -33,6 +41,12 @@ export default function DecisionsPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedDecision, setSelectedDecision] = useState<any | null>(null);
   const [draft, setDraft] = useState<any>({ ...EMPTY_DECISION });
+
+  const selectedResponsiblePerson = RESPONSIBLE_PERSON_OPTIONS.some(
+    (option) => option.value === draft.responsible_person,
+  )
+    ? draft.responsible_person
+    : 'custom';
 
   const loadDecisions = async () => {
     try {
@@ -60,6 +74,7 @@ export default function DecisionsPage() {
       setDraft({
         title: decision.title ?? '',
         description: decision.description ?? '',
+        responsible_person: decision.responsible_person ?? '',
         decision_text: decision.decision_text ?? '',
         comments: decision.comments ?? '',
         status: decision.status ?? 'pending',
@@ -88,6 +103,7 @@ export default function DecisionsPage() {
       const payload = {
         title: draft.title,
         description: draft.description || null,
+        responsible_person: draft.responsible_person || null,
         decision_text: draft.decision_text || null,
         comments: draft.comments || null,
         status: draft.status,
@@ -142,6 +158,7 @@ export default function DecisionsPage() {
             <tr style={{ background: '#f8fafc', color: '#667085', textTransform: 'uppercase', fontSize: 12 }}>
               <th style={{ padding: 16, textAlign: 'left' }}>Код</th>
               <th style={{ padding: 16, textAlign: 'left' }}>Название</th>
+              <th style={{ padding: 16, textAlign: 'left' }}>Исполняющее лицо</th>
               <th style={{ padding: 16, textAlign: 'left' }}>Статус</th>
               <th style={{ padding: 16, textAlign: 'left' }}>Срок решения</th>
               <th style={{ padding: 16, textAlign: 'left' }}>Действия</th>
@@ -152,6 +169,7 @@ export default function DecisionsPage() {
               <tr key={decision.id} style={{ borderTop: '1px solid #eef2f6' }}>
                 <td style={{ padding: 16, fontWeight: 700 }}>{decision.code}</td>
                 <td style={{ padding: 16 }}>{decision.title}</td>
+                <td style={{ padding: 16 }}>{decision.responsible_person ?? '—'}</td>
                 <td style={{ padding: 16 }}>{decision.status}</td>
                 <td style={{ padding: 16 }}>{decision.required_date ?? '—'}</td>
                 <td style={{ padding: 16 }}>
@@ -182,6 +200,39 @@ export default function DecisionsPage() {
               <div>
                 <label style={{ display: 'block', fontSize: 12, fontWeight: 700, marginBottom: 8 }}>Описание</label>
                 <textarea value={draft.description} onChange={(event) => setDraft({ ...draft, description: event.target.value })} rows={3} style={{ width: '100%', padding: '10px 12px', border: '1px solid #d0d5dd', borderRadius: 12, resize: 'vertical' }} />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 700, marginBottom: 8 }}>Исполняющее лицо</label>
+                <select
+                  value={selectedResponsiblePerson}
+                  onChange={(event) => {
+                    const value = event.target.value;
+                    if (value === 'custom') {
+                      setDraft({ ...draft, responsible_person: draft.responsible_person || '' });
+                      return;
+                    }
+                    setDraft({ ...draft, responsible_person: value });
+                  }}
+                  style={{ width: '100%', padding: '10px 12px', border: '1px solid #d0d5dd', borderRadius: 12 }}
+                >
+                  {RESPONSIBLE_PERSON_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+
+                {selectedResponsiblePerson === 'custom' && (
+                  <div style={{ marginTop: 10 }}>
+                    <input
+                      value={draft.responsible_person}
+                      onChange={(event) => setDraft({ ...draft, responsible_person: event.target.value })}
+                      style={{ width: '100%', padding: '10px 12px', border: '1px solid #d0d5dd', borderRadius: 12 }}
+                      placeholder="Укажите собственную позицию"
+                    />
+                  </div>
+                )}
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>

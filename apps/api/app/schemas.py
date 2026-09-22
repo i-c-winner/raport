@@ -208,6 +208,7 @@ class DecisionBase(BaseModel):
     description: Optional[str] = None
     requested_by: Optional[int] = None
     owner_id: Optional[int] = None
+    responsible_person: Optional[str] = None
     required_date: Optional[date] = None
     decision_date: Optional[date] = None
     status: str = "pending"
@@ -226,6 +227,7 @@ class DecisionUpdate(DecisionBase):
     description: Optional[str] = None
     requested_by: Optional[int] = None
     owner_id: Optional[int] = None
+    responsible_person: Optional[str] = None
     required_date: Optional[date] = None
     decision_date: Optional[date] = None
     status: Optional[str] = None

@@ -196,6 +196,7 @@ class Decision(Base):
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     requested_by: Mapped[Optional[int]] = mapped_column(ForeignKey("users.id"), nullable=True)
     owner_id: Mapped[Optional[int]] = mapped_column(ForeignKey("users.id"), nullable=True)
+    responsible_person: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     required_date: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
     decision_date: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
     status: Mapped[str] = mapped_column(String(30), default="pending", nullable=False)

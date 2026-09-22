@@ -34,6 +34,7 @@ def create_decision(
         description=payload.description,
         requested_by=payload.requested_by,
         owner_id=payload.owner_id,
+        responsible_person=payload.responsible_person,
         required_date=payload.required_date,
         decision_date=payload.decision_date,
         status=payload.status,

@@ -37,9 +37,13 @@ def startup() -> None:
     Base.metadata.create_all(bind=engine)
 
     with engine.begin() as connection:
-        columns = [column["name"] for column in inspect(connection).get_columns("audit_logs")]
-        if "entity_name" not in columns:
+        audit_columns = [column["name"] for column in inspect(connection).get_columns("audit_logs")]
+        if "entity_name" not in audit_columns:
             connection.execute(text("ALTER TABLE audit_logs ADD COLUMN entity_name VARCHAR(255)"))
+
+        decision_columns = [column["name"] for column in inspect(connection).get_columns("decisions")]
+        if "responsible_person" not in decision_columns:
+            connection.execute(text("ALTER TABLE decisions ADD COLUMN responsible_person VARCHAR(255)"))
 
     seed_demo_data()
 
